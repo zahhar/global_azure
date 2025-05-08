@@ -17,7 +17,7 @@ Technology Consultant
 EPAM Systems (Switzerland) GmbH
 \
 \
-Munchen, 8. May 2025
+Global Azure, May 2025
 
 ---
 
@@ -453,7 +453,6 @@ Ask RAG to reply with structured output like this (in pseudocode):
 //1st token probability for 'True' token: -1.7289681, or 18%
 </pre>
 
-
 ---
 
 ## Agenda
@@ -485,3 +484,7 @@ Ask RAG to reply with structured output like this (in pseudocode):
 
 **Questions?**  
 Ask now, or send email: zahhar_kirillov@epam.com
+
+**Download presenantion:**
+[https://github.com/zahhar/global_azure/](https://github.com/zahhar/global_azure/)
+![bg right:40% 80%](qr.png)
