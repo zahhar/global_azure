@@ -122,7 +122,7 @@ Global Azure, May 2025
 
 ---
 
-## Why RAG hallucinates?
+## Why RAG hallucinates? (1/2)
 
 <div class="mermaid">
 mindmap
@@ -136,7 +136,12 @@ mindmap
 
 ---
 
-## Why RAG hallucinates?
+## Why RAG hallucinates? (1/2)
+![](hallucinations1.png)
+
+---
+
+## Why RAG hallucinates? (2/2)
 
 <div class="mermaid">
 mindmap
@@ -173,6 +178,13 @@ mindmap
       No QA by design
       No feedback loop
 </div>
+
+---
+
+## Why RAG hallucinates? (2/2)
+
+![](hallucinations2.png)
+
 
 ---
 
