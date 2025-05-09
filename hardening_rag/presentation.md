@@ -5,7 +5,9 @@ author: "Zahhar Kirillov, Senior IT Project- and Delivery Manager, EPAM Systems 
 theme: default
 paginate: true
 mermaid: true
+
 ---
+
 ![bg right 60%](globalazure2025.png)
 # Hardening RAG system against hallucinations
 \
@@ -18,16 +20,6 @@ EPAM Systems (Switzerland) GmbH
 \
 \
 Global Azure, May 2025
-
----
-
-## Agenda
-
-1. RAG in Azure
-2. Why RAG hallucinates?
-3. Hardening strategies
-4. Demo
-5. Key Takeaways
 
 ---
 
@@ -144,88 +136,6 @@ mindmap
 
 ---
 
-## Why RAG hallucinates: Query Issues
-
-<div class="mermaid">
-mindmap
-  root((Hallucinations))
-    Query Issues
-      Ambiguous queries
-      Implicit requests
-      Multiple questions in one query
-      Misunderstandings
-        Too short query
-        Cultural references
-        Unknown terminology & abbreviations  
-</div>
-
----
-## Why RAG hallucinates: Data Quality
-
-<div class="mermaid">
-mindmap
-  root((Hallucinations))
-    Query issues
-    Data Quality
-      "Lost in translation"
-      Outdated content
-      Contradictory info
-      Data loss during extraction
-      Content poisoning
-</div>
-
----
-## Why RAG hallucinates: Retrieval Issues
-
-<div class="mermaid">
-mindmap
-  root((Hallucinations))
-    Query issues
-    Data Quality
-    Retrieval Issues
-      Irrelevant chunks
-      Suboptimal chunking
-      Poor ranking
-      Too few/may chunks
-</div>
-
----
-
-## Why RAG hallucinates: Generation Issues
-
-<div class="mermaid">
-mindmap
-  root((Hallucinations))
-    Query issues
-    Data Quality
-    Retrieval Issues
-    Generation Issues
-      Math/Reasoning queries
-      Wrong model settings
-      Unclear instructions
-      Suboptimal strcutures
-      No fallback
-      Outdated model
-</div>
-
----
-
-## Why RAG hallucinates: System Design
-
-<div class="mermaid">
-mindmap
-  root((Hallucinations))
-    Query issues
-    Data Quality
-    Retrieval Issues
-    Generation Issues
-    System Design
-      No QA by design
-      No feedback loop
-</div>
-
----
-
 ## Why RAG hallucinates?
 
 <div class="mermaid">
@@ -243,7 +153,9 @@ mindmap
       "Lost in translation"
       Outdated content
       Contradictory info
-      Data loss during extraction
+      Data lost during extraction
+      Context lost during chunking
+      Missing metadata
       Content poisoning
     Retrieval issues
       Irrelevant chunks
@@ -254,7 +166,7 @@ mindmap
       Math/Reasoning queries
       Wrong model settings
       Unclear instructions
-      Suboptimal strcutures
+      Suboptimal structures
       No fallback
       Outdated model
     System design
@@ -300,14 +212,24 @@ mindmap
 |--|--|
 |Implicit or ambiguous words: "this", "ours", "it", "best", "previous", "today", "all"| Use pre-flight prompt to detect ambiguity and follow-up with clarification questions; RegExp replacement; Maintain conversation history; Enrich system prompt with current date & time, day of the week and other context |
 |Very short requests: "_Why I can't login?_"|Use query expansion, e.g. HyDE (Hypothetical Document Embeddings). Azure AI Search offers alternative _magic_ with **'max_search_queries'** parameter.|
-|Homonyms (_Bank, Nagel, Schloss, Leiter, Gericht, Decke, Glass_)|Experiment with embedding model; use query expansion; let user specify the domain (e.g. "Finance & Banking" vs "Home & Ganden")
+|Homonyms (пръст, коса, син, съд, брак)|Experiment with embedding model; use query expansion; let user specify the domain (e.g. "Finance & Banking" vs "Home & Ganden")
 
 --- 
 
-## How embedding model affects homonyms understanding? 
-![](seals.png)
+![bg](seal1.png)
+![bg](seal2.png)
+![bg](seal3.png)
 
-Let's calculate _cosine similarity_ between reference sentense and sentenses with homonyms using embedding models available in Azure OpenAI.
+---
+
+## How embedding model affects homonyms understanding? 
+Let's calculate cosine similarity between reference sentense and sentenses with homonyms using embedding models available in Azure OpenAI.
+\
+\
+\
+\
+\
+<i>Special thanks to my colleague Pavel Agurov who shared with me this.</i>
 
 ---
 
@@ -371,7 +293,7 @@ Let's calculate _cosine similarity_ between reference sentense and sentenses wit
 |--|--|
 |Redaction gaps|Do not blindly remove PII, passwords, but replace with [PASSWORD], [CLIENT_NAME], [USERNAME] to preserve meaning.|
 |Only plain text captured|Use OCR and Markdown to capure forms, checkboxes, formatting; extract images/charts/diagrams and replace them "in-place" with detailed descriptions, keeping original image in metadata.
-|Corrupted tabular data|Prefer HTML tables (they preserve colspan/rowspan); keep whole table in one chunk or break semantically (by columns); Convert sparse tables into 'row-column-value' facts and store as JSON-LD or JSONL.|
+|Corrupted tabular data|Prefer HTML tables (they preserve colspan/rowspan); keep whole table in one chunk or break semantically (by columns); Convert sparse tables into 'row-column-value' facts; summarize tables|
 |Context lost in chunking|Experiment with length, overlap. Semantical / smart chuking. Enrich chunks by adding tags / keywords into it or replace ambigous words.|
 
 ---
@@ -379,10 +301,7 @@ Let's calculate _cosine similarity_ between reference sentense and sentenses wit
 ## Hardening Strategies: Data quality (3/3) - Table conversion
 
 ![](table.png)
-<pre>
-{"fund_name": "Asian Dragon Fund", "small_cap": "True"}
-{"fund_name": "Asian Dragon Fund", "equity_risk": "True"}
-</pre>
+> Summary: This table is a risk assessment matrix for investment funds. Table has 1 row in total. Each row represents an investment fund. Columns represent various risk types or risk characteristics.
 <pre>
 {
   "fund_name": "Asian Dragon Fund", 
@@ -406,7 +325,7 @@ Let's calculate _cosine similarity_ between reference sentense and sentenses wit
     
 |Issue|Strategy|
 |--|--|
-|Math/Reasoning queries|Use reasonig model; use tool calls; adjust system promt to think step-by-step; use structured output; find 1 needle at a time; reduce context to most relevant chunks. |
+|Math/Reasoning queries|Use reasoning model; use tool calls; adjust system promt to think step-by-step; use structured output; find 1 needle at a time; reduce context to most relevant chunks. |
 |Temperature (and other) settings|Decrease temperature or set it dynamically, experiment with values on same set of queries|
 |Unclear system prompt|Use detailed & dynamic system prompts with rules, examples, persona, examples of desired output. |
 |No fallback|Instruct LLM to "Say 'I don't know' if uncertain"; use Optional fields in pydantic structures|
@@ -435,7 +354,7 @@ Source: https://blog.langchain.dev/multi-needle-in-a-haystack/
 
 ## Hardening Strategies: System design (2/2) - using LogProbs
 
-> This technique is not (yet?) available in Azure OpenAI when used with 'data_sources'. Shallow alternative is 'strictness' parameter.
+> This technique is not (yet?) available in Azure OpenAI when used with 'data_sources'. Shallow alternative is 'strictness' parameter, or feeding back 'citations' used to provide response and asking if it is well-grounded.
 
 Ask RAG to reply with structured output like this (in pseudocode):
 <pre>
@@ -474,7 +393,7 @@ Ask RAG to reply with structured output like this (in pseudocode):
 1. Use most advanced embedding and inference models
 1. Use long, rich and detailed system prompt (it'll be cached)
 1. Start with longer chunks, enrich them with metadata, keep the context
-1. Prefer HTML tables over Markdown, and Markdow formatting over HTML
+1. Prefer HTML tables over Markdown, and Markdow formatting over plain text or HTML
 1. Don't be strict: allow LLM to say "I do not know"; allow user to say "I (dis)like it"
 1. "Junk in -> Junk out": low-quality data won't provide high-quality output
 
